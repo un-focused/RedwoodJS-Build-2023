@@ -1,0 +1,41 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = "native"
+}
+
+model User {
+  id                  Int       @id @default(autoincrement())
+  name                String?
+  email               String    @unique
+  hashedPassword      String
+  salt                String
+  resetToken          String?
+  resetTokenExpiresAt DateTime?
+
+  thoughts            JournalThought[]
+}
+
+model JournalPrompt {
+  id       Int    @id @default(autoincrement())
+  prompt   String @unique
+
+  thoughts JournalThought[]
+}
+
+model JournalThought {
+  id     Int           @id @default(autoincrement())
+  value  String
+
+  prompt JournalPrompt @relation(fields: [promptID], references: [id])
+  user   User          @relation(fields: [userID], references: [id])
+
+  promptID Int
+  userID   Int
+
+  createdAt DateTime @default(now())
+}
